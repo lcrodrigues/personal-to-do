@@ -15,6 +15,8 @@ import kotlinx.coroutines.flow.SharedFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.launchIn
+import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import javax.inject.Inject
@@ -31,30 +33,34 @@ class EventViewModel @Inject constructor(
     val eventFlow: SharedFlow<UIEvent> = _eventFlow.asSharedFlow()
 
     fun fetchEvents() {
-        _eventState.update { AppState.Loading }
+        _eventState.update {
+            AppState.Loading
+        }
 
         viewModelScope.launch(Dispatchers.IO) {
-            when (val result = getEvents()) {
-                is Resource.Success -> {
-                    if (result.data.isNotEmpty()) {
-                        _eventState.update { AppState.Success(data = result.data) }
-                    } else {
-                        _eventState.update { AppState.Empty }
+            getEvents().onEach { result ->
+                when (result) {
+                    is Resource.Success -> {
+                        if (result.data.isNotEmpty()) {
+                            _eventState.update { AppState.Success(data = result.data) }
+                        } else {
+                            _eventState.update { AppState.Empty }
+                        }
+                    }
+
+                    is Resource.Error -> {
+                        val data = result.data
+
+                        _eventFlow.emit(UIEvent.ShowSnackbar(result.error.message ?: "Error!"))
+
+                        if (result.error is NetworkException) {
+                            _eventState.update { AppState.InternetError(data) }
+                        } else {
+                            _eventState.update { AppState.GenericError(data) }
+                        }
                     }
                 }
-
-                is Resource.Error -> {
-                    val data = result.data
-
-                    _eventFlow.emit(UIEvent.ShowSnackbar(result.error.message ?: "Error!"))
-
-                    if (result.error is NetworkException) {
-                        _eventState.update { AppState.InternetError(data) }
-                    } else {
-                        _eventState.update { AppState.GenericError(data) }
-                    }
-                }
-            }
+            }.launchIn(this)
         }
     }
 
