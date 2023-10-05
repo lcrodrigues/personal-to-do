@@ -5,5 +5,5 @@ import com.example.personaltodo.featureevents.domain.model.Event
 import kotlinx.coroutines.flow.Flow
 
 interface EventRepository {
-    suspend fun getEvents(): Flow<Resource<List<Event>>>
+    fun getEvents(): Flow<Resource<List<Event>>>
 }

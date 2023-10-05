@@ -16,9 +16,10 @@ class EventRepositoryImpl(
     private val dao: EventDao
 ) : EventRepository {
 
-    override suspend fun getEvents() = flow<Resource<List<Event>>> {
+    override fun getEvents() = flow<Resource<List<Event>>> {
         val localEvents = dao.getEvents().map { it.toEvent() }
         emit(Resource.Success(data = localEvents))
+        
         try {
             val remoteEvents = api.getEvents()
             dao.apply {

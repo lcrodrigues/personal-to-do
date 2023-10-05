@@ -8,6 +8,7 @@ import com.example.personaltodo.featureevents.data.remote.EventApi
 import com.example.personaltodo.featureevents.data.repository.EventRepositoryImpl
 import com.example.personaltodo.featureevents.data.util.GsonParser
 import com.example.personaltodo.featureevents.domain.repository.EventRepository
+import com.example.personaltodo.featureevents.domain.usecase.FilterList
 import com.example.personaltodo.featureevents.domain.usecase.GetEvents
 import com.google.gson.Gson
 import dagger.Module
@@ -21,6 +22,11 @@ import javax.inject.Singleton
 @Module
 @InstallIn(SingletonComponent::class)
 object EventModule {
+
+    @Provides
+    fun provideFilterListUseCase(): FilterList {
+        return FilterList()
+    }
 
     @Provides
     @Singleton

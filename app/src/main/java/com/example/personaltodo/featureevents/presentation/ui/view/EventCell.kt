@@ -18,11 +18,11 @@ import androidx.compose.ui.unit.sp
 import com.example.personaltodo.featureevents.domain.model.Event
 
 @Composable
-fun EventCellComponent(event: Event) {
+fun EventCell(event: Event) {
     Card(
         modifier = Modifier
             .fillMaxWidth()
-            .padding(8.dp),
+            .padding(vertical = 4.dp),
         colors = CardDefaults.cardColors(
             containerColor = MaterialTheme.colorScheme.surfaceVariant
         )
