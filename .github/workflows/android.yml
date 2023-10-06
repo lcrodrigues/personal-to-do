@@ -1,27 +1,44 @@
-name: App Center CI
+# This is a basic workflow to help you get started with Actions
 
+name: CI
+
+# Controls when the workflow will run
 on:
+  # Triggers the workflow on push or pull request events but only for the "master" branch
   push:
-    branches:
-      - development
+    branches: [ "development" ]
+  pull_request:
+    branches: [ "development" ]
 
+  # Allows you to run this workflow manually from the Actions tab
+  workflow_dispatch:
+
+# A workflow run is made up of one or more jobs that can run sequentially or in parallel
 jobs:
+  # This workflow contains a single job called "build"
   build:
+    # The type of runner that the job will run on
     runs-on: macos-latest
 
+    # Steps represent a sequence of tasks that will be executed as part of the job
     steps:
-      - name: Checkout Code
-        uses: actions/checkout@v2
+      # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
+      - uses: actions/checkout@v3
 
       - name: Set up Java
         uses: actions/setup-java@v2
         with:
-          java-version: 11
+          java-version: '17'
+          distribution: 'adopt'
+          
+      - name: Build with Gradle
+        run: ./gradlew build
 
-      - name: Build and Test
-        run: |
-          ./gradlew assembleDebug
-          ./gradlew test
+      - name: Run Android Tests
+        uses: reactivecircus/android-emulator-runner@v2
+        with:
+          api-level: 29
+          script: ./gradlew connectedCheck
 
       - name: Deploy to App Center
         env:
